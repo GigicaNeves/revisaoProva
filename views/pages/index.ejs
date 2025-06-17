@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Revisão para prova</title>
+    <link rel="stylesheet" href="/css/index.css" />
+  </head>
+  <body>
+    <h1>Crie suas tasks</h1>
+
+    <main>
+      <section id="tasksListadas"></section>
+
+      <form action="" method="post">
+        <label for="title">Título:</label>
+        <input type="text" name="title" id="title" />
+        <label for="description">Descrição:</label>
+        <input type="text" name="description" id="description" />
+        <button type="button" id="submit">Criar</button>
+      </form>
+    </main>
+    <script>
+      const sectionTasks = document.getElementById("tasksListadas");
+
+      const buttonSubmit = document.getElementById("submit");
+      const titleInput = document.getElementById("title");
+      const descriptionInput = document.getElementById("description");
+
+      async function listarTasks() {
+        try {
+          const response = await fetch("/tasks/listar");
+          const tasks = await response.json();
+
+          if (tasks.length === 0) {
+            sectionTasks.innerHTML = "<h1>Nenhuma tarefa encontrada.</h1>";
+            return;
+          }
+
+          console.log(tasks);
+          let html = ""; // inicializa fora do forEach
+
+          tasks.forEach((task) => {
+            html += `<div class="card-task">
+             <h1>${task.title}</h1>
+             <p>${task.description}</p>
+             <button id="exclui-${task.id}">Excluir</button>
+           </div>`;
+          });
+
+          sectionTasks.innerHTML = html;
+
+          const buttonDelete = document.getElementById(`exclui-${task.id}`);
+
+          buttonDelete.addEventListener("click", async () => {
+            const response = await fetch(`/tasks/deletar`, {
+              method: "DELETE",
+            });
+          });
+        } catch (error) {
+          console.error("Erro real:", error);
+        }
+      }
+
+      buttonSubmit.addEventListener("click", async function () {
+        try {
+          const valueInputTitle = titleInput.value;
+          const valueInputDescription = descriptionInput.value;
+
+          const response = await fetch(`/tasks/adicionar`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              title: valueInputTitle,
+              description: valueInputDescription,
+            }),
+          });
+
+          if (response.ok) {
+            alert("Tarefa adicionada com sucesso!");
+          } else {
+            alert("Erro ao adicionar tarefa.");
+          }
+
+          console.log(response);
+          listarTasks();
+        } catch (error) {
+          console.error("Erro real:", error);
+        }
+      });
+
+      listarTasks();
+    </script>
+  </body>
+</html>
